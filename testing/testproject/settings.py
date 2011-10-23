@@ -9,6 +9,8 @@ ADMINS = (
 
 MANAGERS = ADMINS
 
+DEBUG = True
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
@@ -134,7 +136,11 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
-        }
+        },
+        'console':{
+                    'level':'DEBUG',
+                    'class':'logging.StreamHandler',
+                },
     },
     'loggers': {
         'django.request': {
@@ -142,5 +148,19 @@ LOGGING = {
             'level': 'ERROR',
             'propagate': True,
         },
+        'counters': {
+            'level': 'DEBUG',
+            'handlers' : ['console'],
+
+        },
     }
+}
+
+COUNTERS={
+    #"server" : [("",50709),("",50710),("",50711)]
+    "default_view_counters" : (
+      "db","templating",
+    ),
+    "reporting_interval" : 20, #seconds
+    "debug": True,
 }

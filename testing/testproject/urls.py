@@ -15,6 +15,8 @@ urlpatterns = patterns('',
 
     # Uncomment the next line to enable the admin:
     # (r'^admin/', include(admin.site.urls)),
+
+    (r'count_me','testproject.testapp.views.count_me'),
 )
 
 if settings.DEBUG:
