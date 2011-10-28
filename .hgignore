@@ -20,4 +20,5 @@ testing/*.egg-info
 .pydevproject
 .pydevproject.bak
 .idea/
+.DS_Store
 
