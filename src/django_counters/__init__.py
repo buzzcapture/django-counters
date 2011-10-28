@@ -2,7 +2,6 @@ import django.utils.log
 import re
 from time import sleep
 
-from . import patcher
 import pycounters
 from pycounters.base import THREAD_DISPATCHER, GLOBAL_DISPATCHER, EventLogger
 from pycounters.counters import AverageTimeCounter, ThreadTimeCategorizer, FrequencyCounter, AverageWindowCounter
@@ -13,6 +12,7 @@ from django.conf import settings
 import django.db.backends.util
 
 # wrap django db access layer.
+from pycounters.utils import patcher
 
 @pycounters.report_start_end("db_access")
 def patched_execute(self,*args,**kwargs):
