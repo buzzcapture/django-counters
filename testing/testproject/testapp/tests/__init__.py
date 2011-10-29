@@ -1,7 +1,10 @@
 from django.template import loader
 from django.test import TestCase
+from django_counters.models import ViewCounterValue
 from pycounters.base import BaseListener, THREAD_DISPATCHER
+from pycounters.reporters.base import GLOBAL_REPORTING_CONTROLLER
 from testproject.testapp.models import TestModel
+from django.test.client import Client
 
 class EventCatcher(object):
 
@@ -49,5 +52,22 @@ class DjangoCountersTests(TestCase):
                 ("templating","end",None),
             ])
         )
+
+
+    def test_db_reporting(self):
+        c = Client()
+        c.get("/count_me/?sleep=0.1&snooze=0.05")
+        c.get("/count_me/?sleep=0.1&snooze=0.05")
+        GLOBAL_REPORTING_CONTROLLER.report()
+
+        values = ViewCounterValue.objects.filter(view="count_me",counter="total")
+        self.assertEqual(len(values),1)
+
+        values = ViewCounterValue.objects.filter(view="count_me",counter="rest")
+        self.assertEqual(len(values),1)
+
+        values = ViewCounterValue.objects.filter(view="count_me",counter="sleep")
+        self.assertEqual(len(values),1)
+
 
 

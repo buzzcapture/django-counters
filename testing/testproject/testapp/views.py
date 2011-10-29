@@ -1,8 +1,8 @@
 # Create your views here.
 import time
 from django.http import HttpResponse
-from django.template import loader
 from django.template.context import RequestContext
+from django.shortcuts import render_to_response
 import django_counters
 import pycounters
 
@@ -19,8 +19,7 @@ def count_me(request):
     time.sleep(snooze)
     tc = dict(sleep=sleep,snooze=snooze)
 
-    return HttpResponse(loader.render_to_response("count_me.template.html",tc,
-                            context_instance = RequestContext(request)))
+    return render_to_response("count_me.template.html",tc,context_instance = RequestContext(request))
 
 
 
