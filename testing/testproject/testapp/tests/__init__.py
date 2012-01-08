@@ -60,7 +60,9 @@ class DjangoCountersTests(TestCase):
         c.get("/count_me/?sleep=0.1&snooze=0.05")
         GLOBAL_REPORTING_CONTROLLER.report()
 
-        values = ViewCounterValue.objects.filter(view="count_me",counter="total")
+        values = ViewCounterValue.objects.filter(view="count_me",counter="_total")
+        self.assertEqual(len(values),1)
+        values = ViewCounterValue.objects.filter(view="count_me",counter="_rps")
         self.assertEqual(len(values),1)
 
         values = ViewCounterValue.objects.filter(view="count_me",counter="rest")

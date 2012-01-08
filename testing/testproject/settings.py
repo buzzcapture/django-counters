@@ -155,14 +155,29 @@ LOGGING = {
             'handlers' : ['console'],
 
         },
+        'slow_requests': {
+            'level': 'DEBUG',
+            'handlers' : ['console'],
+
+        },
     }
 }
 
-COUNTERS={
+DJANGO_COUNTERS={
     #"server" : [("",50709),("",50710),("",50711)]
-    "default_view_counters" : (
+    "default_view_categories" : (
       "db","templating",
     ),
-    "reporting_interval" : 20, #seconds
+    "reporting" : {
+        "interval" : 20, #seconds
+        "JSONFile" : None, # Output counter value to a jason file
+        "database" : {
+            "active" : True, # save reports in database
+            "max_report_age_in_days" : 365 # number of days to keep reports
+        }
+    },
+
+    "slow_request_threshold" : 1, # log every request which takes longer then 1 second to slow requests log
+
     "debug": True,
 }
