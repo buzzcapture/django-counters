@@ -1,6 +1,7 @@
 import functools
+from django.core.exceptions import ImproperlyConfigured
 import django.utils.log
-from django_counters.reporters import ViewReporter
+from django_counters.db_store.reporters import ViewReporter
 
 import pycounters
 from pycounters.base import THREAD_DISPATCHER, GLOBAL_DISPATCHER, EventLogger
@@ -8,6 +9,10 @@ from pycounters.counters import AverageTimeCounter, ThreadTimeCategorizer, Frequ
 from pycounters.reporters import LogReporter, JSONFileReporter
 from django.conf import settings
 import django.db.backends.util
+
+
+if not hasattr(settings,"DJANGO_COUNTERS"):
+    raise ImproperlyConfigured("Django settings must contain a DJANGO_COUNTERS entry.")
 
 # wrap django db access layer.
 from pycounters.utils import patcher
@@ -34,6 +39,17 @@ DJANGO_EVENTS_SCHEME=[
 ]
 
 patcher.execute_patching_scheme(DJANGO_EVENTS_SCHEME)
+
+
+## TODO: Remove these in the next release of pycounters.
+
+class ThreadTimeCategorizerEx(ThreadTimeCategorizer):
+
+    def get_times(self):
+        ret = []
+        for k,v in self.category_timers.iteritems():
+            ret.append((self.name + "." + k,v.get_accumulated_time()))
+        return ret
 
 
 def count_view(name=None,categories=[],slow_request_threshold=settings.DJANGO_COUNTERS["slow_request_threshold"]):
@@ -72,7 +88,7 @@ def count_view(name=None,categories=[],slow_request_threshold=settings.DJANGO_CO
         @pycounters.report_start_end(event_name)
         @functools.wraps(func)
         def wrapper(request,*args,**kwargs):
-            tc=ThreadTimeCategorizer(event_name,view_categories)
+            tc=ThreadTimeCategorizerEx(event_name,view_categories)
             THREAD_DISPATCHER.add_listener(tc)
             try:
               r=func(request,*args,**kwargs)
@@ -112,12 +128,6 @@ pycounters.register_reporter(log_reporter)
 
 
 reporting_config = settings.DJANGO_COUNTERS["reporting"]
-
-if reporting_config.get("database") and reporting_config.get("database").get("active",True):
-    db_config = reporting_config.get("database")
-    db_reporter = ViewReporter(max_report_age_in_days=db_config.get("max_report_age_in_days",365))
-    pycounters.register_reporter(db_reporter)
-
 
 
 if reporting_config.get("JSONFile"):

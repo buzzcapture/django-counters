@@ -1,7 +1,7 @@
 import datetime
 import json
 from pycounters.reporters import BaseReporter
-from django_counters.models import ViewCounterValue
+from django_counters.db_store.models import ViewCounterValue
 
 class ViewReporter(BaseReporter):
     """

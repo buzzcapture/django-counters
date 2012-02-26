@@ -1,8 +1,8 @@
 from django.template import loader
 from django.test import TestCase
-from django_counters.models import ViewCounterValue
+from django_counters.db_store.models import ViewCounterValue
+from pycounters import output_report
 from pycounters.base import BaseListener, THREAD_DISPATCHER
-from pycounters.reporters.base import GLOBAL_REPORTING_CONTROLLER
 from testproject.testapp.models import TestModel
 from django.test.client import Client
 
@@ -58,7 +58,7 @@ class DjangoCountersTests(TestCase):
         c = Client()
         c.get("/count_me/?sleep=0.1&snooze=0.05")
         c.get("/count_me/?sleep=0.1&snooze=0.05")
-        GLOBAL_REPORTING_CONTROLLER.report()
+        output_report()
 
         values = ViewCounterValue.objects.filter(view="count_me",counter="_total")
         self.assertEqual(len(values),1)
