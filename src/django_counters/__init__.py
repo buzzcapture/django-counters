@@ -41,18 +41,6 @@ DJANGO_EVENTS_SCHEME=[
 
 patcher.execute_patching_scheme(DJANGO_EVENTS_SCHEME)
 
-
-## TODO: Remove these in the next release of pycounters.
-
-class ThreadTimeCategorizerEx(ThreadTimeCategorizer):
-
-    def get_times(self):
-        ret = []
-        for k,v in self.category_timers.iteritems():
-            ret.append((self.name + "." + k,v.get_accumulated_time()))
-        return ret
-
-
 def count_view(name=None,categories=[],slow_request_threshold=settings.DJANGO_COUNTERS["slow_request_threshold"]):
 
     def decorater(func):
@@ -85,7 +73,7 @@ def count_view(name=None,categories=[],slow_request_threshold=settings.DJANGO_CO
         @pycounters.report_start_end(event_name)
         @functools.wraps(func)
         def wrapper(*args,**kwargs):
-            tc=ThreadTimeCategorizerEx(event_name,view_categories)
+            tc=ThreadTimeCategorizer(event_name,view_categories)
             THREAD_DISPATCHER.add_listener(tc)
             try:
               r=func(*args,**kwargs)
