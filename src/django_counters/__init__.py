@@ -2,7 +2,6 @@ import functools
 from django.core.exceptions import ImproperlyConfigured
 from django.http import HttpRequest
 import django.utils.log
-from django_counters.db_store.reporters import ViewReporter
 
 import pycounters
 from pycounters.base import THREAD_DISPATCHER, GLOBAL_DISPATCHER, EventLogger

@@ -24,5 +24,5 @@ setup(name='django_counters',
       zip_safe=False,
       install_requires=[
           'pycounters',
-          'Django >= 1.2, <1.4',
+          'Django >= 1.2, <1.6',
         ])

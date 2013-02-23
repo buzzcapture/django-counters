@@ -13,12 +13,12 @@ DEBUG = True
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'postgresql', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': '/tmp/djang_counters',                      # Or path to database file if using sqlite3.
-        'USER': '',                      # Not used with sqlite3.
-        'PASSWORD': '',                  # Not used with sqlite3.
-        'HOST': '',                      # Set to empty string for localhost. Not used with sqlite3.
-        'PORT': '',                      # Set to empty string for default. Not used with sqlite3.
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': '/tmp/djang_counters',
+        'USER': '',
+        'PASSWORD': '',
+        'HOST': '',
+        'PORT': '',
     }
 }
 
@@ -120,7 +120,6 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'testproject.testapp',
     'django_counters',
-    'django_counters.db_store',
     # Uncomment the next line to enable the admin:
     # 'django.contrib.admin',
     # Uncomment the next line to enable admin documentation:
@@ -140,10 +139,10 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler'
         },
-        'console':{
-                    'level':'DEBUG',
-                    'class':'logging.StreamHandler',
-                },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+        },
     },
     'loggers': {
         'django.request': {
@@ -153,32 +152,32 @@ LOGGING = {
         },
         'counters': {
             'level': 'DEBUG',
-            'handlers' : ['console'],
+            'handlers': ['console'],
 
         },
         'slow_requests': {
             'level': 'DEBUG',
-            'handlers' : ['console'],
+            'handlers': ['console'],
 
         },
     }
 }
 
-DJANGO_COUNTERS={
+DJANGO_COUNTERS = {
     #"server" : [("",50709),("",50710),("",50711)]
-    "default_view_categories" : (
-      "db","templating",
+    "default_view_categories": (
+        "db", "templating",
     ),
-    "reporting" : {
-        "interval" : 20, #seconds
-        "JSONFile" : None, # Output counter value to a jason file
-        "database" : {
-            "active" : True, # save reports in database
-            "max_report_age_in_days" : 365 # number of days to keep reports
+    "reporting": {
+        "interval": 20,      # seconds
+        "JSONFile": None,    # Output counter value to a jason file
+        "database": {
+            "active": True,  # save reports in database
+            "max_report_age_in_days": 365  # number of days to keep reports
         }
     },
 
-    "slow_request_threshold" : 1, # log every request which takes longer then 1 second to slow requests log
+    "slow_request_threshold": 1,  # log every request which takes longer then 1 second to slow requests log
 
     "debug": True,
 }
