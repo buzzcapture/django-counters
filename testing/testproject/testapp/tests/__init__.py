@@ -1,8 +1,12 @@
+from django.core.files.temp import NamedTemporaryFile
 from django.template import loader
 from django.test import TestCase
+import pycounters
 from pycounters.base import BaseListener, THREAD_DISPATCHER
 from testproject.testapp.models import TestModel
+from pycounters.reporters import JSONFileReporter
 import django_counters.base  # initializes for tests.
+from django_counters.munin_plugin import DjangoCountersMuninPlugin
 
 
 class EventCatcher(object):
@@ -59,3 +63,23 @@ class DjangoCountersTests(TestCase):
         self.assertIn("v_sleep.sleep", [event for event, param, value in events])
         self.assertIn("v_sleep.templating", [event for event, param, value in events])
         self.assertIn("v_sleep.rest", [event for event, param, value in events])
+
+
+class MuninPluginTests(TestCase):
+
+    def test_auto_config(self):
+        with NamedTemporaryFile() as json_file:
+            reporter = JSONFileReporter(output_file=json_file.name)
+            pycounters.register_reporter(reporter)
+            try:
+                self.client.get("/sleep/",data=dict(sleep=0.2))
+                pycounters.output_report()
+
+                munin_plugin = DjangoCountersMuninPlugin(json_output_file=json_file.name)
+
+                config = munin_plugin.auto_generate_config_from_json()
+
+
+
+            finally:
+                pycounters.unregister_reporter(reporter)
