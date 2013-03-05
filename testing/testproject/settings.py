@@ -166,7 +166,7 @@ LOGGING = {
 DJANGO_COUNTERS = {
     #"server" : [("",50709),("",50710),("",50711)]
     "default_view_categories": (
-        "db", "templating",
+        "db_access", "templating",
     ),
     "reporting": {
         "interval": 20,      # seconds

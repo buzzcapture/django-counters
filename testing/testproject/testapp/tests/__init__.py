@@ -40,7 +40,7 @@ class DjangoCountersTests(TestCase):
     def test_template_hook(self):
         events = []
         with EventCatcher(events):
-            loader.render_to_string("count_me.template.html")
+            loader.render_to_string("sleep.template.html")
 
         self.assertEqual(set(events),
                          set([
@@ -49,3 +49,12 @@ class DjangoCountersTests(TestCase):
                          ])
                          )
 
+    def test_sleep_view(self):
+        events = []
+        with EventCatcher(events):
+            res = self.client.get("/sleep/",data=dict(sleep=0.2))
+            self.assertIsNotNone(res["__django_counters_total_time__"])
+
+        self.assertIn("v_sleep.sleep", [event for event, param, value in events])
+        self.assertIn("v_sleep.templating", [event for event, param, value in events])
+        self.assertIn("v_sleep.rest", [event for event, param, value in events])

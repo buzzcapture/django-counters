@@ -78,10 +78,9 @@ def count_view(name=None, categories=[], slow_request_threshold=settings.DJANGO_
             THREAD_DISPATCHER.add_listener(tc)
             try:
                 r = func(*args, **kwargs)
-                if slow_request_threshold:
-                    times = tc.get_times()
-                    total = sum([v for k, v in times])
-                    if total > slow_request_threshold:
+                times = tc.get_times()
+                total = sum([v for k, v in times])
+                if slow_request_threshold and total > slow_request_threshold:
                         # Get the request from args, this can be either index 0 or 1
                         # depening on whether django view functions or classes are used
                         request = None
@@ -107,6 +106,7 @@ def count_view(name=None, categories=[], slow_request_threshold=settings.DJANGO_
                             counters="\n        ".join(["%s:%s" % (k, v) for k, v in times])
                         ))
                 tc.raise_value_events()
+                r["__django_counters_total_time__"] = str(total)
                 return r
             finally:
                 THREAD_DISPATCHER.remove_listener(tc)
