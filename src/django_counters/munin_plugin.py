@@ -37,7 +37,7 @@ class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
                 config.append(active_config)
                 active_config["id"]=self.category + "_" + counter if self.category else counter
                 active_config["global"]=dict(category=self.category,
-                                            title="%sAverage times for view %s " % (title_prefix, counter),
+                                            title="%sAverage times for view %s " % (title_prefix, view_name),
                                             vlabel="time")
 
             if counter_name == "_rps":
