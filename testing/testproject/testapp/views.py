@@ -3,11 +3,11 @@ import time
 from django.http import HttpResponse
 from django.template.context import RequestContext
 from django.shortcuts import render_to_response
-import django_counters
+import django_counters.view_counters
 import pycounters
 
 
-@django_counters.count_view("sleep", ["sleep", "templating"])
+@django_counters.view_counters.count_view("sleep", ["sleep", "templating"])
 def sleep(request):
     sleep = float(request.GET.get("sleep", 0))
 
