@@ -35,7 +35,8 @@ class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
                 active_view = view_name
                 active_config = {}
                 config.append(active_config)
-                active_config["id"]=self.category + "_" + counter if self.category else counter
+                active_config["id"]="django_counters_"
+                active_config["id"]+=self.category + "_" + view_name if self.category else counter
                 active_config["global"]=dict(category=self.category,
                                             title="%sAverage times for view %s " % (title_prefix, view_name),
                                             vlabel="time")
@@ -44,7 +45,8 @@ class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
                 # request per second, another chart
                 rps_config = {}
                 config.append(rps_config)
-                rps_config["id"]=self.category + "_" + counter if self.category else counter
+                rps_config["id"]="django_counters_"
+                rps_config["id"]+=self.category + "_" + counter if self.category else counter
                 rps_config["global"]=dict(category=self.category,
                                           title="%sRequests per second for view %s " % (title_prefix ,view_name),
                                           vlabel="rps")
