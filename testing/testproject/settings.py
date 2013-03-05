@@ -170,7 +170,7 @@ DJANGO_COUNTERS = {
     ),
     "reporting": {
         "interval": 20,      # seconds
-        "JSONFile": None,    # Output counter value to a jason file
+        "JSONFile": None,    # Output counter value to a JSON file
     },
 
     "slow_request_threshold": 1,  # log every request which takes longer then 1 second to slow requests log
