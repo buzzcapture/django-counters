@@ -40,7 +40,7 @@ class DjangoCountersTests(TestCase):
                              ("db_access", "start", None),
                              ("db_access", "end", None),
                          ])
-                         )
+        )
 
     def test_template_hook(self):
         events = []
@@ -52,12 +52,12 @@ class DjangoCountersTests(TestCase):
                              ("templating", "start", None),
                              ("templating", "end", None),
                          ])
-                         )
+        )
 
     def test_sleep_view(self):
         events = []
         with EventCatcher(events):
-            res = self.client.get("/sleep/",data=dict(sleep=0.2))
+            res = self.client.get("/sleep/", data=dict(sleep=0.2))
             self.assertIsNotNone(res["__django_counters_total_time__"])
 
         self.assertIn("v_sleep.sleep", [event for event, param, value in events])
@@ -66,18 +66,42 @@ class DjangoCountersTests(TestCase):
 
 
 class MuninPluginTests(TestCase):
-
     def test_auto_config(self):
         with NamedTemporaryFile() as json_file:
             reporter = JSONFileReporter(output_file=json_file.name)
             pycounters.register_reporter(reporter)
             try:
-                self.client.get("/sleep/",data=dict(sleep=0.2))
+                self.client.get("/sleep/", data=dict(sleep=0.2))
                 pycounters.output_report()
 
                 munin_plugin = DjangoCountersMuninPlugin(json_output_file=json_file.name)
 
                 config = munin_plugin.auto_generate_config_from_json()
+
+                expected = [{
+                                'id': u'django_counters_v_sleep._rps',
+                                'global': {'category': None,
+                                           'vlabel': 'time',
+                                           'title': u'Average times for view sleep'
+                                },
+                                'data': [{'draw': 'LINE1', 'counter': u'v_sleep._total', 'label': 'Total'},
+                                         {'draw': 'AREASTACK', 'counter': u'v_sleep.rest', 'label': u'rest'},
+                                         {'draw': 'AREASTACK', 'counter': u'v_sleep.sleep', 'label': u'sleep'},
+                                         {'draw': 'AREASTACK', 'counter': u'v_sleep.templating', 'label': u'templating'}
+                                ]
+                            },
+                            {
+                                'id': u'django_counters_v_sleep._rps',
+                                'global': {'category': None, 'vlabel': 'rps',
+                                           'title': u'Requests per second for view sleep'},
+                                'data': [
+                                    {'draw': 'LINE1', 'counter': u'v_sleep._rps',
+                                     'label': 'Requests per sec'
+                                    }
+                                ],
+                            }
+                ]
+                self.assertListEqual(config, expected)
 
 
 

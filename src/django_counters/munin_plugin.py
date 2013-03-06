@@ -2,17 +2,24 @@ import re
 from pycounters import reporters
 import pycounters.utils.munin
 
-class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
 
-    def __init__(self,json_output_file=None,category=None):
-        super(DjangoCountersMuninPlugin,self).__init__(json_output_file=json_output_file)
-        self.category=category
+class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
+    def __init__(self, json_output_file=None, category=None, extra_config=[]):
+        """
+
+        :param json_output_file: the name of the json file outputted by PyCounters JSONFileReporter
+        :param category: Munin category if needed.
+        :param extra_config: extra munin plugins you want, based on any PyCounter you may have.
+        """
+        super(DjangoCountersMuninPlugin, self).__init__(json_output_file=json_output_file,
+                                                        config=extra_config)
+        self.category = category
 
 
     def auto_generate_config_from_json(self):
         values = reporters.JSONFileReporter.safe_read(self.output_file)
 
-        counters = filter(lambda x : not re.match("^__.*__$",x) , values.keys())
+        counters = filter(lambda x: not re.match("^__.*__$", x), values.keys())
         counters = sorted(counters)
 
         # now they counters are sorted, you can start by checking prefixes
@@ -21,7 +28,7 @@ class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
 
         config = []
 
-        active_view=None
+        active_view = None
         active_config = None
         for counter in counters:
             if not counter.startswith("v_"):
@@ -37,9 +44,9 @@ class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
                 config.append(active_config)
                 active_config["id"] = "django_counters_"
                 active_config["id"] += self.category + "_" + view_name if self.category else counter
-                active_config["global"]=dict(category=self.category,
-                                            title="%sAverage times for view %s " % (title_prefix, view_name),
-                                            vlabel="time")
+                active_config["global"] = dict(category=self.category,
+                                               title="%sAverage times for view %s" % (title_prefix, view_name),
+                                               vlabel="time")
 
             if counter_name == "_rps":
                 # request per second, another chart
@@ -47,28 +54,28 @@ class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
                 config.append(rps_config)
                 rps_config["id"] = "django_counters_"
                 rps_config["id"] += self.category + "_" + counter if self.category else counter
-                rps_config["global"]=dict(category=self.category,
-                                          title="%sRequests per second for view %s " % (title_prefix ,view_name),
-                                          vlabel="rps")
+                rps_config["global"] = dict(category=self.category,
+                                            title="%sRequests per second for view %s" % (title_prefix, view_name),
+                                            vlabel="rps")
 
-                rps_config["data"]=[ dict(counter=counter,label="Requests per sec",draw="LINE1") ]
+                rps_config["data"] = [dict(counter=counter, label="Requests per sec", draw="LINE1")]
 
             elif counter_name == "_total":
-                active_config["data"]=[dict(counter=counter,label="Total",draw="LINE1")]
+                active_config["data"] = [dict(counter=counter, label="Total", draw="LINE1")]
 
             else:
                 active_config["data"].append(
-                    dict(counter=counter,label=counter_name,draw="AREASTACK")
+                    dict(counter=counter, label=counter_name, draw="AREASTACK")
                 )
 
-                
         return config
 
-    def output_config(self,config):
-        config = self.auto_generate_config_from_json()
-        super(DjangoCountersMuninPlugin,self).output_config(config)
+    def output_config(self, config):
+        auto_config = self.auto_generate_config_from_json()
+        merged_config = config + auto_config if config else auto_config
+        super(DjangoCountersMuninPlugin, self).output_config(merged_config)
 
-
-    def output_data(self,config):
-        config = self.auto_generate_config_from_json()
-        super(DjangoCountersMuninPlugin,self).output_data(config)
+    def output_data(self, config):
+        auto_config = self.auto_generate_config_from_json()
+        merged_config = config + auto_config if config else auto_config
+        super(DjangoCountersMuninPlugin, self).output_data(merged_config)
