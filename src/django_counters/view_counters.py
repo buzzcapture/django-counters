@@ -1,4 +1,5 @@
 import functools
+from django.http import HttpRequest
 import django.utils.log
 from django.conf import settings
 import pycounters
