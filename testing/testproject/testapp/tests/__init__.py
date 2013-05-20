@@ -1,13 +1,42 @@
+from contextlib import contextmanager
+import functools
 from django.core.files.temp import NamedTemporaryFile
 from django.template import loader
 from django.test import TestCase
 import pycounters
 from pycounters.base import BaseListener, THREAD_DISPATCHER
+import testproject.testapp.views
 from testproject.testapp.models import TestModel
 from pycounters.reporters import JSONFileReporter
 import django_counters.base  # initializes for tests.
 from django_counters.munin_plugin import DjangoCountersMuninPlugin
 
+
+@contextmanager
+def disable_all_views_but(*args):
+    """
+    :param args: a list of view names that shouldn't be disabled.
+    :return: a dictionary of original settings that can be restored with restore_views
+    """
+    original_state = {}
+    views = testproject.testapp.views
+    for v in dir(views):
+        if v in args:
+            continue
+        if not isinstance(getattr(views, v), functools.partial):
+            continue
+
+        original_state[v] = getattr(views,v)
+        setattr(views,v, original_state[v].func)
+    yield
+
+    for v in original_state:
+        setattr(views, v, original_state[v])
+
+def reset_pycounters():
+    pycounters.base.GLOBAL_REGISTRY.registry.clear()
+    pycounters.reporters.base.GLOBAL_REPORTING_CONTROLLER.clear()
+    reload(testproject.testapp.views)
 
 class EventCatcher(object):
     def __init__(self, event_store):
@@ -30,6 +59,11 @@ class EventCatcher(object):
 
 
 class DjangoCountersTests(TestCase):
+
+    def setUp(self):
+        reset_pycounters()
+
+
     def test_db_hook(self):
         events = []
         with EventCatcher(events):
@@ -64,10 +98,23 @@ class DjangoCountersTests(TestCase):
         self.assertIn("v_sleep.templating", [event for event, param, value in events])
         self.assertIn("v_sleep.rest", [event for event, param, value in events])
 
+    def test_db_access_view(self):
+        events = []
+        with EventCatcher(events):
+            res = self.client.get("/db_access/")
+            self.assertIsNotNone(res["__django_counters_total_time__"])
+
+        self.assertIn("v_db_access.db_access", [event for event, param, value in events])
+        self.assertIn("v_db_access.templating", [event for event, param, value in events])
+
 
 class MuninPluginTests(TestCase):
+
+    def setUp(self):
+        reset_pycounters()
+
     def test_auto_config(self):
-        with NamedTemporaryFile() as json_file:
+        with disable_all_views_but("sleep"), NamedTemporaryFile() as json_file:
             reporter = JSONFileReporter(output_file=json_file.name)
             pycounters.register_reporter(reporter)
             try:
@@ -76,7 +123,7 @@ class MuninPluginTests(TestCase):
 
                 munin_plugin = DjangoCountersMuninPlugin(json_output_file=json_file.name)
 
-                config = munin_plugin.auto_generate_config_from_json()
+                config = munin_plugin.auto_generate_config_from_json(include_views=["sleep"])
 
                 expected = [{
                                 'id': u'django_counters_v_sleep._rps',

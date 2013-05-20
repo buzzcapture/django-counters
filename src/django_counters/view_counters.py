@@ -4,7 +4,8 @@ import django.utils.log
 from django.conf import settings
 import pycounters
 from pycounters.base import THREAD_DISPATCHER
-from pycounters.counters import ThreadTimeCategorizer, FrequencyCounter, AverageTimeCounter, AverageWindowCounter
+from pycounters.counters import FrequencyCounter, AverageTimeCounter, AverageWindowCounter
+from pycounters.utils.threads import ThreadTimeCategorizer
 from . import base  # init django_counters
 
 

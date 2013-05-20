@@ -17,6 +17,7 @@ urlpatterns = patterns('',
     # (r'^admin/', include(admin.site.urls)),
 
     (r'sleep','testproject.testapp.views.sleep'),
+    (r'db_access','testproject.testapp.views.db_access'),
 )
 
 if settings.DEBUG:

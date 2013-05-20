@@ -16,7 +16,13 @@ class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
         self.category = category
 
 
-    def auto_generate_config_from_json(self):
+    def auto_generate_config_from_json(self, exclude_views=[], include_views=[]):
+        """
+        automaticaly build a munin config from a json file outputted by django_counter
+        :param exclude_views: a list of views to exclude
+        :param include_views: a lift of views to include
+        :return:
+        """
         values = reporters.JSONFileReporter.safe_read(self.output_file)
 
         counters = filter(lambda x: not re.match("^__.*__$", x), values.keys())
@@ -36,6 +42,12 @@ class DjangoCountersMuninPlugin(pycounters.utils.munin.Plugin):
 
             view_name, counter_name = counter.split(".", 1)
             view_name = view_name[2:] # remove v_
+
+            if exclude_views and view_name in exclude_views:
+                continue
+
+            if include_views and not view_name in include_views:
+                continue
 
             if active_view is None or active_view != view_name:
                 ## new counter found
