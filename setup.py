@@ -1,7 +1,7 @@
 from setuptools import setup
 import sys, os
 
-version = '0.1'
+version = '0.2'
 
 long_description = (
     open('README.txt').read()
@@ -23,6 +23,6 @@ setup(name='django_counters',
       include_package_data=True,
       zip_safe=False,
       install_requires=[
-          'pycounters',
+          'pycounters >= 0.6',
           'Django >= 1.2, <1.6',
         ])
